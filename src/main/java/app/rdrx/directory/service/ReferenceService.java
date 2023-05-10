@@ -73,7 +73,7 @@ public class ReferenceService {
             } catch (NoSuchElementException ex){
                 throw new DoesNotExistException(ex);
             }
-            List<Reference> existingRefs = this.getByAliases(ref.getAliases(), null, null);
+            List<Reference> existingRefs = this.getByAliases(ref.getAliases(), PageRequest.ofSize(DEFAULT_PAGE_SIZE));
             if(existingRefs.size() > 1){
                 List<String> takenAliases = new ArrayList<>();
                 existingRefs.forEach(r -> {
@@ -112,7 +112,7 @@ public class ReferenceService {
         if(ref.getId() != null){
             recordErrors.addFieldError(Reference.ID_FIELD, "Cannot insert new reference with an ID.");
         }
-        List<Reference> existingRefs = this.getByAliases(ref.getAliases(), null, null);
+        List<Reference> existingRefs = this.getByAliases(ref.getAliases(), PageRequest.ofSize(DEFAULT_PAGE_SIZE));
         if(!existingRefs.isEmpty()){
             List<String> takenAliases = new ArrayList<>();
             existingRefs.forEach(r -> takenAliases.addAll(r.getAliases()));
@@ -223,16 +223,10 @@ public class ReferenceService {
         }
     }
 
-    public List<Reference> getByAliases(List<String> aliases, Integer pageSize, Integer page){
-        if(page == null || page < 0){
-            page = 0;
-        }
-        if (pageSize == null || pageSize < 1){
-            pageSize = DEFAULT_PAGE_SIZE;
-        }
+    public List<Reference> getByAliases(List<String> aliases, PageRequest page){
         List<String> standardizedAliases = new ArrayList<>(aliases.size());
         aliases.forEach(alias -> standardizedAliases.add(alias.toLowerCase()));
-        List<StoredReference> queryResult = refRepo.findByAliasesLower(standardizedAliases, PageRequest.of(page, pageSize));
+        List<StoredReference> queryResult = refRepo.findByAliasesLower(standardizedAliases, page);
         List<Reference> references = new ArrayList<>(queryResult.size());
         queryResult.forEach(storedRef -> references.add(storedRef.toReference()));
         return references;
