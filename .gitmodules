@@ -1,0 +1,3 @@
+[submodule "src/main/web"]
+	path = src/main/web
+	url = git@github.com:redirx-app/rdrx-web-ng.git
